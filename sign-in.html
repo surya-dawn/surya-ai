@@ -327,46 +327,44 @@
   </div>
 
   <script>
+    // Auth0 Configuration
     const AUTH0_CONFIG = {
       domain: "dev-5cmmp041gk4mk82c.uk.auth0.com",
       clientId: "3wZIXiMVoAnvqgKNlpQIOcXSZORq2RZN",
-      redirectUri: "https://surya-dawn.github.io/surya-ai/sign-in.html",
+      redirect_uri: window.location.origin
     };
 
-    let auth0Client;
+    let auth0Client = null;
     let currentUser = null;
 
-    // Initialize Auth0
-    async function initAuth0() {
+    // Initialize Auth0 Client
+    async function configureAuth0() {
       try {
         auth0Client = await createAuth0Client({
           domain: AUTH0_CONFIG.domain,
-          clientId: AUTH0_CONFIG.clientId,
-          authorizationParams: {
-            redirect_uri: AUTH0_CONFIG.redirectUri
-          }
+          client_id: AUTH0_CONFIG.clientId,
+          redirect_uri: AUTH0_CONFIG.redirect_uri
         });
 
-        // Check if user is already authenticated
+        // Handle redirect after login
+        const query = window.location.search;
+        if (query.includes("code=") && query.includes("state=")) {
+          try {
+            await auth0Client.handleRedirectCallback();
+            window.history.replaceState({}, document.title, "/");
+          } catch (error) {
+            showStatus('Authentication error: ' + error.message, 'error');
+            return;
+          }
+        }
+
+        // Check authentication status
         const isAuthenticated = await auth0Client.isAuthenticated();
-        
         if (isAuthenticated) {
           currentUser = await auth0Client.getUser();
-          updateUIForAuthenticatedUser();
+          showAuthenticatedUI();
         } else {
-          // Check for authentication result after redirect
-          const query = window.location.search;
-          if (query.includes('code=') || query.includes('error=')) {
-            try {
-              await auth0Client.handleRedirectCallback();
-              currentUser = await auth0Client.getUser();
-              updateUIForAuthenticatedUser();
-              // Clean up URL
-              window.history.replaceState({}, document.title, window.location.pathname);
-            } catch (error) {
-              showStatus('Authentication error: ' + error.message, 'error');
-            }
-          }
+          showUnauthenticatedUI();
         }
       } catch (error) {
         console.error('Auth0 initialization error:', error);
@@ -374,74 +372,33 @@
       }
     }
 
-    // OAuth Login Functions
-    async function loginWithGoogle() {
-      try {
-        await auth0Client.loginWithRedirect({
-          authorizationParams: {
-            connection: 'google-oauth2',
-            redirect_uri: "https://surya-dawn.github.io/surya-ai/sign-in.html"
-          }
-        });
-      } catch (error) {
-        showStatus('Google sign-in failed: ' + error.message, 'error');
-      }
-    }
-
-    async function loginWithFacebook() {
-      try {
-        await auth0Client.loginWithRedirect({
-          authorizationParams: {
-            connection: 'facebook',
-            redirect_uri: "https://surya-dawn.github.io/surya-ai/sign-in.html"
-          }
-        });
-      } catch (error) {
-        showStatus('Facebook sign-in failed: ' + error.message, 'error');
-      }
-    }
-
-    async function loginWithEmailPassword(email, password) {
-      try {
-        // For email/password, you would typically use Auth0's database connection
-        await auth0Client.loginWithRedirect({
-          authorizationParams: {
-            connection: 'Username-Password-Authentication',
-            login_hint: email,
-            redirect_uri: "https://surya-dawn.github.io/surya-ai/sign-in.html"
-          }
-        });
-      } catch (error) {
-        showStatus('Sign-in failed: ' + error.message, 'error');
-        return false;
-      }
-      return true;
-    }
-
-    async function logout() {
-      try {
-        await auth0Client.logout({
-          logoutParams: {
-            returnTo: "https://surya-dawn.github.io/surya-ai/sign-in.html"
-          }
-        });
-      } catch (error) {
-        showStatus('Logout failed: ' + error.message, 'error');
-      }
-    }
-
-    // UI Update Functions
-    function updateUIForAuthenticatedUser() {
+    // UI State Management
+    function showAuthenticatedUI() {
+      const title = document.querySelector('.title');
       if (currentUser) {
-        document.querySelector('.title').textContent = `Welcome back, ${currentUser.name || currentUser.email}!`;
-        document.getElementById('signInForm').style.display = 'none';
-        document.querySelector('.divider').style.display = 'none';
-        document.querySelector('.social-section').style.display = 'none';
-        document.getElementById('authControls').classList.add('show');
+        title.textContent = `Welcome back, ${currentUser.name || currentUser.email}!`;
         showStatus(`Successfully signed in as ${currentUser.email}`, 'success');
+      } else {
+        title.textContent = 'You are signed in!';
+        showStatus('You are signed in.', 'success');
       }
+      
+      document.getElementById("authControls").classList.add("show");
+      document.getElementById("signInForm").style.display = "none";
+      document.querySelector(".divider").style.display = "none";
+      document.querySelector(".social-section").style.display = "none";
     }
 
+    function showUnauthenticatedUI() {
+      document.querySelector('.title').textContent = 'Sign in with your Surya Account';
+      document.getElementById("statusIndicator").style.display = "none";
+      document.getElementById("authControls").classList.remove("show");
+      document.getElementById("signInForm").style.display = "block";
+      document.querySelector(".divider").style.display = "block";
+      document.querySelector(".social-section").style.display = "flex";
+    }
+
+    // Status Display
     function showStatus(message, type) {
       const statusElement = document.getElementById('statusIndicator');
       statusElement.textContent = message;
@@ -453,6 +410,138 @@
           statusElement.style.display = 'none';
         }, 5000);
       }
+    }
+
+    // Form validation functions
+    function validateEmail(email) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
+    }
+
+    function showError(inputId, message) {
+      const errorElement = document.getElementById(inputId + 'Error');
+      if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+      }
+    }
+
+    function hideError(inputId) {
+      const errorElement = document.getElementById(inputId + 'Error');
+      if (errorElement) {
+        errorElement.style.display = 'none';
+      }
+    }
+
+    // Event Listeners Setup
+    function setupEventListeners() {
+      // Email/Password Form Submission
+      document.getElementById("signInForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const signInBtn = document.getElementById("signInBtn");
+        
+        let isValid = true;
+        
+        // Validate email
+        if (!emailInput.value) {
+          showError('email', 'Email is required');
+          isValid = false;
+        } else if (!validateEmail(emailInput.value)) {
+          showError('email', 'Please enter a valid email');
+          isValid = false;
+        } else {
+          hideError('email');
+        }
+
+        // Validate password
+        if (!passwordInput.value) {
+          showError('password', 'Password is required');
+          isValid = false;
+        } else if (passwordInput.value.length < 6) {
+          showError('password', 'Password must be at least 6 characters');
+          isValid = false;
+        } else {
+          hideError('password');
+        }
+
+        if (!isValid) return;
+
+        signInBtn.classList.add("loading");
+        signInBtn.textContent = "Signing in...";
+        
+        try {
+          // Note: Auth0 SPA SDK doesn't support direct email/password login
+          // This would require Universal Login or a custom backend
+          showStatus("Email/password login requires Universal Login with database connection enabled in Auth0.", 'error');
+        } catch (err) {
+          console.error(err);
+          showStatus("Login failed. Please try again.", 'error');
+        } finally {
+          signInBtn.classList.remove("loading");
+          signInBtn.textContent = "Sign In";
+        }
+      });
+
+      // Google Login
+      document.getElementById("googleBtn").addEventListener("click", async () => {
+        const btn = document.getElementById("googleBtn");
+        btn.style.transform = 'scale(0.98)';
+        
+        setTimeout(async () => {
+          btn.style.transform = 'scale(1)';
+          try {
+            await auth0Client.loginWithRedirect({
+              connection: "google-oauth2"
+            });
+          } catch (error) {
+            showStatus('Google sign-in failed: ' + error.message, 'error');
+          }
+        }, 150);
+      });
+
+      // Facebook Login
+      document.getElementById("facebookBtn").addEventListener("click", async () => {
+        const btn = document.getElementById("facebookBtn");
+        btn.style.transform = 'scale(0.98)';
+        
+        setTimeout(async () => {
+          btn.style.transform = 'scale(1)';
+          try {
+            await auth0Client.loginWithRedirect({
+              connection: "facebook"
+            });
+          } catch (error) {
+            showStatus('Facebook sign-in failed: ' + error.message, 'error');
+          }
+        }, 150);
+      });
+
+      // Logout
+      document.getElementById("logoutBtn").addEventListener("click", () => {
+        auth0Client.logout({
+          returnTo: window.location.origin
+        });
+      });
+
+      // Real-time validation
+      document.getElementById('email').addEventListener('blur', function() {
+        if (this.value && !validateEmail(this.value)) {
+          showError('email', 'Please enter a valid email');
+        } else {
+          hideError('email');
+        }
+      });
+
+      document.getElementById('password').addEventListener('blur', function() {
+        if (this.value && this.value.length < 6) {
+          showError('password', 'Password must be at least 6 characters');
+        } else {
+          hideError('password');
+        }
+      });
     }
 
     // Animation functions
@@ -551,142 +640,11 @@
       setTimeout(createAmbientBackground, 20000);
     }
 
-    // Form validation and functionality
-    function initFormFunctionality() {
-      const form = document.getElementById('signInForm');
-      const emailInput = document.getElementById('email');
-      const passwordInput = document.getElementById('password');
-      const signInBtn = document.getElementById('signInBtn');
-      const googleBtn = document.getElementById('googleBtn');
-      const facebookBtn = document.getElementById('facebookBtn');
-      const logoutBtn = document.getElementById('logoutBtn');
-
-      // Email validation
-      function validateEmail(email) {
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return re.test(email);
-      }
-
-      // Show error message
-      function showError(inputId, message) {
-        const errorElement = document.getElementById(inputId + 'Error');
-        if (errorElement) {
-          errorElement.textContent = message;
-          errorElement.style.display = 'block';
-        }
-      }
-
-      // Hide error message
-      function hideError(inputId) {
-        const errorElement = document.getElementById(inputId + 'Error');
-        if (errorElement) {
-          errorElement.style.display = 'none';
-        }
-      }
-
-      // Show success message
-      function showSuccess() {
-        const successElement = document.getElementById('successMessage');
-        if (successElement) {
-          successElement.style.display = 'block';
-          setTimeout(() => {
-            successElement.style.display = 'none';
-          }, 3000);
-        }
-      }
-
-      // Form submission
-      form.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        let isValid = true;
-        
-        // Validate email
-        if (!emailInput.value) {
-          showError('email', 'Email is required');
-          isValid = false;
-        } else if (!validateEmail(emailInput.value)) {
-          showError('email', 'Please enter a valid email');
-          isValid = false;
-        } else {
-          hideError('email');
-        }
-
-        // Validate password
-        if (!passwordInput.value) {
-          showError('password', 'Password is required');
-          isValid = false;
-        } else if (passwordInput.value.length < 6) {
-          showError('password', 'Password must be at least 6 characters');
-          isValid = false;
-        } else {
-          hideError('password');
-        }
-
-        if (isValid) {
-          // Show loading state
-          signInBtn.classList.add('loading');
-          signInBtn.textContent = 'Signing in...';
-          
-          try {
-            const success = await loginWithEmailPassword(emailInput.value, passwordInput.value);
-            if (success) {
-              showSuccess();
-            }
-          } catch (error) {
-            showError('password', 'Sign-in failed. Please check your credentials.');
-          } finally {
-            signInBtn.classList.remove('loading');
-            signInBtn.textContent = 'Sign In';
-          }
-        }
-      });
-
-      // Social media sign-in buttons
-      googleBtn.addEventListener('click', async function() {
-        this.style.transform = 'scale(0.98)';
-        setTimeout(async () => {
-          this.style.transform = 'scale(1)';
-          await loginWithGoogle();
-        }, 150);
-      });
-
-      facebookBtn.addEventListener('click', async function() {
-        this.style.transform = 'scale(0.98)';
-        setTimeout(async () => {
-          this.style.transform = 'scale(1)';
-          await loginWithFacebook();
-        }, 150);
-      });
-
-      // Logout button
-      logoutBtn.addEventListener('click', async function() {
-        await logout();
-      });
-
-      // Real-time validation
-      emailInput.addEventListener('blur', function() {
-        if (this.value && !validateEmail(this.value)) {
-          showError('email', 'Please enter a valid email');
-        } else {
-          hideError('email');
-        }
-      });
-
-      passwordInput.addEventListener('blur', function() {
-        if (this.value && this.value.length < 6) {
-          showError('password', 'Password must be at least 6 characters');
-        } else {
-          hideError('password');
-        }
-      });
-    }
-
     // Initialize everything when DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {
       initSignUpAnimations();
-      initFormFunctionality();
-      initAuth0();
+      setupEventListeners();
+      configureAuth0();
     });
   </script>
 </body>
