@@ -331,24 +331,21 @@
     const AUTH0_CONFIG = {
       domain: "dev-5cmmp041gk4mk82c.uk.auth0.com",
       clientId: "3wZIXiMVoAnvqgKNlpQIOcXSZORq2RZN",
-      redirect_uri: window.location.origin
+      authorizationParams: {
+        redirect_uri: window.location.origin
+      }
     };
 
     let auth0Client = null;
     let currentUser = null;
 
     // Initialize Auth0 Client
-    async function configureAuth0() {
+    async function initAuth0() {
       try {
-        auth0Client = await createAuth0Client({
-          domain: AUTH0_CONFIG.domain,
-          client_id: AUTH0_CONFIG.clientId,
-          redirect_uri: AUTH0_CONFIG.redirect_uri
-        });
+        auth0Client = await createAuth0Client(AUTH0_CONFIG);
 
         // Handle redirect after login
-        const query = window.location.search;
-        if (query.includes("code=") && query.includes("state=")) {
+        if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
           try {
             await auth0Client.handleRedirectCallback();
             window.history.replaceState({}, document.title, "/");
@@ -362,6 +359,7 @@
         const isAuthenticated = await auth0Client.isAuthenticated();
         if (isAuthenticated) {
           currentUser = await auth0Client.getUser();
+          console.log("User Info:", currentUser);
           showAuthenticatedUI();
         } else {
           showUnauthenticatedUI();
@@ -379,8 +377,8 @@
         title.textContent = `Welcome back, ${currentUser.name || currentUser.email}!`;
         showStatus(`Successfully signed in as ${currentUser.email}`, 'success');
       } else {
-        title.textContent = 'You are signed in!';
-        showStatus('You are signed in.', 'success');
+        title.textContent = "You're signed in!";
+        showStatus("You're signed in!", 'success');
       }
       
       document.getElementById("authControls").classList.add("show");
@@ -520,10 +518,16 @@
       });
 
       // Logout
-      document.getElementById("logoutBtn").addEventListener("click", () => {
-        auth0Client.logout({
-          returnTo: window.location.origin
-        });
+      document.getElementById("logoutBtn").addEventListener("click", async () => {
+        try {
+          await auth0Client.logout({
+            logoutParams: {
+              returnTo: window.location.origin
+            }
+          });
+        } catch (error) {
+          showStatus('Logout failed: ' + error.message, 'error');
+        }
       });
 
       // Real-time validation
@@ -644,8 +648,15 @@
     document.addEventListener('DOMContentLoaded', function() {
       initSignUpAnimations();
       setupEventListeners();
-      configureAuth0();
+      initAuth0();
     });
+
+    // Also initialize on window load as backup
+    window.onload = function() {
+      if (!auth0Client) {
+        initAuth0();
+      }
+    };
   </script>
 </body>
 </html>
