@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <title>Welcome</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Poppins', sans-serif;
+  background: #000000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 30vh;
+  width: 700px;
+  background-color: #1c1c1c;
+  border-radius: 35px;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  object-fit: cover;
+  margin-bottom: 20px;
+}
+
+h1 {
+  font-size: 50px;
+  font-weight: 700;
+  color: #dceaff;
+  margin: 0;
+}
+
+button {
+  background-color: #a8cbf8;
+  border: none;
+  padding: 12px 28px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #000;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.3s;
+  font-family: 'Poppins', sans-serif;
+  margin-top: 20px;
+  width: 600px
+}
+
+button:hover {
+  background-color: #c3dbff;
+}
+
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="content">
+      <img src="surya-ai.png" class="logo" alt="Surya AI Logo">
+      <h1>Good morning!</h1>
+    </div>
+    <br>
+    <br>
+    <button onclick="window.location.href='sign-up.html'">Sign In</button>
+  </div>
+  <script>
+// Main page animations (for index.html)
+function initMainPageAnimations() {
+  // Wait for DOM to be fully loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get all elements
+    const logo = document.querySelector('.logo');
+    const title = document.querySelector('h1');
+    const subtitle = document.querySelector('p');
+    const button = document.querySelector('button');
+    const container = document.querySelector('.container');
+
+    // Set initial states (invisible and positioned)
+    const elements = [logo, title, subtitle, button];
+    elements.forEach(el => {
+      if (el) {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+      }
+    });
+
+    // Add container fade-in
+    if (container) {
+      container.style.opacity = '0';
+      container.style.transform = 'scale(0.95)';
+      container.style.transition = 'all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+    }
+
+    // Animate elements in sequence
+    setTimeout(() => {
+      if (container) {
+        container.style.opacity = '1';
+        container.style.transform = 'scale(1)';
+      }
+    }, 100);
+
+    setTimeout(() => {
+      if (logo) {
+        logo.style.opacity = '1';
+        logo.style.transform = 'translateY(0) scale(1)';
+        // Add a subtle bounce effect to logo
+        logo.style.animation = 'logoFloat 3s ease-in-out infinite';
+      }
+    }, 300);
+
+    setTimeout(() => {
+      if (title) {
+        title.style.opacity = '1';
+        title.style.transform = 'translateY(0)';
+      }
+    }, 500);
+
+    setTimeout(() => {
+      if (subtitle) {
+        subtitle.style.opacity = '1';
+        subtitle.style.transform = 'translateY(0)';
+      }
+    }, 700);
+
+    setTimeout(() => {
+      if (button) {
+        button.style.opacity = '1';
+        button.style.transform = 'translateY(0)';
+        // Add enhanced hover animation
+        addButtonHoverEffects(button);
+      }
+    }, 900);
+
+    // Add floating animation keyframes
+    addFloatingAnimation();
+    
+    // Add particle effect
+    createParticleEffect();
+  });
+}
+
+// Welcome page animations (for welcome.html)
+function initWelcomePageAnimations() {
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get specific elements for welcome page
+    const box = document.querySelector('.box');
+    const logo = document.querySelector('.logo');
+    const title = document.querySelector('h1');
+    const button = document.querySelector('button');
+    const content = document.querySelector('.content');
+    
+    // Set initial states for the box container
+    if (box) {
+      box.style.opacity = '0';
+      box.style.transform = 'scale(0.8) translateY(50px)';
+      box.style.transition = 'all 1s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    }
+
+    // Set initial states for content elements
+    const elements = [logo, title, button];
+    elements.forEach(el => {
+      if (el) {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+      }
+    });
+
+    // Animate box container first
+    setTimeout(() => {
+      if (box) {
+        box.style.opacity = '1';
+        box.style.transform = 'scale(1) translateY(0)';
+      }
+    }, 100);
+
+    // Animate logo with special effects
+    setTimeout(() => {
+      if (logo) {
+        logo.style.opacity = '1';
+        logo.style.transform = 'translateY(0) scale(1)';
+        // Add floating animation
+        logo.style.animation = 'logoFloat 3s ease-in-out infinite';
+        // Add glow effect on hover
+        addLogoGlowEffect(logo);
+      }
+    }, 400);
+
+    // Animate title with typewriter effect
+    setTimeout(() => {
+      if (title) {
+        title.style.opacity = '1';
+        title.style.transform = 'translateY(0)';
+        addTypewriterEffect(title);
+      }
+    }, 600);
+
+    // Animate button with enhanced effects
+    setTimeout(() => {
+      if (button) {
+        button.style.opacity = '1';
+        button.style.transform = 'translateY(0)';
+        addWelcomeButtonEffects(button);
+      }
+    }, 800);
+
+    // Add ambient background animation
+    createAmbientBackground();
+    
+    // Add subtle box shadow animation
+    addBoxShadowAnimation();
+  });
+}
+
+// Enhanced button hover effects for welcome page
+function addWelcomeButtonEffects(button) {
+  button.addEventListener('mouseenter', function() {
+    this.style.transform = 'translateY(-3px) scale(1.02)';
+    this.style.boxShadow = '0 15px 35px rgba(168, 203, 248, 0.4)';
+    this.style.background = 'linear-gradient(45deg, #a8cbf8, #c3dbff)';
+  });
+
+  button.addEventListener('mouseleave', function() {
+    this.style.transform = 'translateY(0) scale(1)';
+    this.style.boxShadow = 'none';
+    this.style.background = '#a8cbf8';
+  });
+
+  button.addEventListener('mousedown', function() {
+    this.style.transform = 'translateY(-1px) scale(0.99)';
+  });
+
+  button.addEventListener('mouseup', function() {
+    this.style.transform = 'translateY(-3px) scale(1.02)';
+  });
+}
+
+// Logo glow effect
+function addLogoGlowEffect(logo) {
+  logo.addEventListener('mouseenter', function() {
+    this.style.filter = 'drop-shadow(0 0 20px rgba(168, 203, 248, 0.6))';
+    this.style.transform = 'scale(1.1)';
+  });
+
+  logo.addEventListener('mouseleave', function() {
+    this.style.filter = 'none';
+    this.style.transform = 'scale(1)';
+  });
+}
+
+// Dynamic greeting based on time
+function getDynamicGreeting() {
+  const now = new Date();
+  const hour = now.getHours();
+  
+  if (hour >= 5 && hour < 12) {
+    return "Good morning!";
+  } else if (hour >= 12 && hour < 17) {
+    return "Good afternoon!";
+  } else if (hour >= 17 && hour < 21) {
+    return "Good evening!";
+  } else {
+    return "Good night!";
+  }
+}
+
+// Typewriter effect for title with dynamic greeting
+function addTypewriterEffect(title) {
+  const dynamicGreeting = getDynamicGreeting();
+  title.textContent = '';
+  let i = 0;
+  
+  const typeWriter = () => {
+    if (i < dynamicGreeting.length) {
+      title.textContent += dynamicGreeting.charAt(i);
+      i++;
+      setTimeout(typeWriter, 100);
+    }
+  };
+  
+  setTimeout(typeWriter, 200);
+}
+
+// Ambient background animation
+function createAmbientBackground() {
+  const ambientCount = 8;
+  
+  for (let i = 0; i < ambientCount; i++) {
+    setTimeout(() => {
+      const ambient = document.createElement('div');
+      ambient.style.position = 'fixed';
+      ambient.style.width = Math.random() * 200 + 100 + 'px';
+      ambient.style.height = ambient.style.width;
+      ambient.style.background = `radial-gradient(circle, rgba(168, 203, 248, ${Math.random() * 0.1 + 0.05}), transparent)`;
+      ambient.style.borderRadius = '50%';
+      ambient.style.left = Math.random() * window.innerWidth + 'px';
+      ambient.style.top = Math.random() * window.innerHeight + 'px';
+      ambient.style.pointerEvents = 'none';
+      ambient.style.zIndex = '-1';
+      ambient.style.animation = `ambientFloat ${Math.random() * 20 + 15}s ease-in-out infinite`;
+      
+      document.body.appendChild(ambient);
+      
+      // Remove ambient after animation
+      setTimeout(() => {
+        if (ambient.parentNode) {
+          ambient.parentNode.removeChild(ambient);
+        }
+      }, 35000);
+    }, Math.random() * 3000);
+  }
+  
+  // Continue creating ambient effects
+  setTimeout(createAmbientBackground, 15000);
+}
+
+// Box shadow animation
+function addBoxShadowAnimation() {
+  const box = document.querySelector('.box');
+  if (box) {
+    let shadowIntensity = 0;
+    let increasing = true;
+    
+    setInterval(() => {
+      if (increasing) {
+        shadowIntensity += 0.5;
+        if (shadowIntensity >= 20) increasing = false;
+      } else {
+        shadowIntensity -= 0.5;
+        if (shadowIntensity <= 5) increasing = true;
+      }
+      
+      box.style.boxShadow = `0 ${shadowIntensity}px ${shadowIntensity * 2}px rgba(168, 203, 248, 0.1)`;
+    }, 100);
+  }
+}
+
+// Add floating animation keyframes
+function addFloatingAnimation() {
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(2deg); }
+    }
+    
+    @keyframes particleFloat {
+      0% { transform: translateY(100vh) translateX(0) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-100px) translateX(50px) rotate(360deg); opacity: 0; }
+    }
+    
+    @keyframes ambientFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+      25% { transform: translate(50px, -30px) scale(1.1); opacity: 0.5; }
+      50% { transform: translate(-30px, 50px) scale(0.9); opacity: 0.3; }
+      75% { transform: translate(30px, 30px) scale(1.05); opacity: 0.4; }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+// Create subtle particle effect
+function createParticleEffect() {
+  const particleCount = 15;
+  
+  for (let i = 0; i < particleCount; i++) {
+    setTimeout(() => {
+      const particle = document.createElement('div');
+      particle.style.position = 'fixed';
+      particle.style.width = Math.random() * 4 + 2 + 'px';
+      particle.style.height = particle.style.width;
+      particle.style.backgroundColor = `rgba(168, 203, 248, ${Math.random() * 0.3 + 0.1})`;
+      particle.style.borderRadius = '50%';
+      particle.style.left = Math.random() * window.innerWidth + 'px';
+      particle.style.pointerEvents = 'none';
+      particle.style.zIndex = '-1';
+      particle.style.animation = `particleFloat ${Math.random() * 10 + 10}s linear infinite`;
+      
+      document.body.appendChild(particle);
+      
+      // Remove particle after animation
+      setTimeout(() => {
+        if (particle.parentNode) {
+          particle.parentNode.removeChild(particle);
+        }
+      }, 20000);
+    }, Math.random() * 5000);
+  }
+  
+  // Continue creating particles
+  setTimeout(createParticleEffect, 8000);
+}
+
+// Page transition animation
+function createPageTransition(targetUrl) {
+  const overlay = document.createElement('div');
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0';
+  overlay.style.left = '0';
+  overlay.style.width = '100%';
+  overlay.style.height = '100%';
+  overlay.style.background = 'linear-gradient(45deg, #000000, #004e9a)';
+  overlay.style.zIndex = '9999';
+  overlay.style.opacity = '0';
+  overlay.style.transition = 'opacity 0.5s ease-in-out';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  
+  // Add loading animation
+  const loader = document.createElement('div');
+  loader.innerHTML = '✨ Loading...';
+  loader.style.color = '#dceaff';
+  loader.style.fontSize = '20px';
+  loader.style.fontFamily = 'Poppins, sans-serif';
+  overlay.appendChild(loader);
+  
+  document.body.appendChild(overlay);
+  
+  // Trigger transition
+  setTimeout(() => {
+    overlay.style.opacity = '1';
+  }, 10);
+  
+  // Navigate after transition
+  setTimeout(() => {
+    window.location.href = targetUrl;
+  }, 500);
+}
+
+// Enhanced button navigation for welcome page
+function enhanceWelcomeButtonNavigation() {
+  document.addEventListener('DOMContentLoaded', function() {
+    const button = document.querySelector('button');
+    if (button && button.onclick) {
+      const originalOnclick = button.onclick;
+      button.onclick = function(e) {
+        e.preventDefault();
+        const targetUrl = 'sign-up.html';
+        createPageTransition(targetUrl);
+      };
+    }
+  });
+}
+
+// Enhanced button hover effects for main page
+function addButtonHoverEffects(button) {
+  button.addEventListener('mouseenter', function() {
+    this.style.transform = 'translateY(-2px) scale(1.05)';
+    this.style.boxShadow = '0 8px 25px rgba(168, 203, 248, 0.4)';
+  });
+
+  button.addEventListener('mouseleave', function() {
+    this.style.transform = 'translateY(0) scale(1)';
+    this.style.boxShadow = 'none';
+  });
+
+  button.addEventListener('mousedown', function() {
+    this.style.transform = 'translateY(0) scale(0.98)';
+  });
+
+  button.addEventListener('mouseup', function() {
+    this.style.transform = 'translateY(-2px) scale(1.05)';
+  });
+}
+
+// Initialize animations based on current page
+function initAnimations() {
+  const isMainPage = document.title === 'Surya AI' || window.location.pathname.includes('index') || window.location.pathname === '/';
+  const isWelcomePage = document.title === 'Sign In' || window.location.pathname.includes('welcome');
+  
+  if (isMainPage) {
+    initMainPageAnimations();
+    enhanceButtonNavigation();
+  } else if (isWelcomePage) {
+    initWelcomePageAnimations();
+    enhanceWelcomeButtonNavigation();
+  }
+}
+
+// Enhanced button navigation for main page
+function enhanceButtonNavigation() {
+  document.addEventListener('DOMContentLoaded', function() {
+    const button = document.querySelector('button');
+    if (button && button.onclick) {
+      const originalOnclick = button.onclick;
+      button.onclick = function(e) {
+        e.preventDefault();
+        const targetUrl = 'welcome.html';
+        createPageTransition(targetUrl);
+      };
+    }
+  });
+}
+
+// Auto-initialize
+initAnimations();
+  </script>
+</body>
+</html>
