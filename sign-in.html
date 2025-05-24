@@ -330,7 +330,7 @@
     const AUTH0_CONFIG = {
       domain: "dev-5cmmp041gk4mk82c.uk.auth0.com",
       clientId: "3wZIXiMVoAnvqgKNlpQIOcXSZORq2RZN",
-      redirectUri: window.location.origin,
+      redirectUri: "https://surya-dawn.github.io/surya-ai/sign-in.html",
     };
 
     let auth0Client;
@@ -379,7 +379,8 @@
       try {
         await auth0Client.loginWithRedirect({
           authorizationParams: {
-            connection: 'google-oauth2'
+            connection: 'google-oauth2',
+            redirect_uri: "https://surya-dawn.github.io/surya-ai/sign-in.html"
           }
         });
       } catch (error) {
@@ -391,7 +392,8 @@
       try {
         await auth0Client.loginWithRedirect({
           authorizationParams: {
-            connection: 'facebook'
+            connection: 'facebook',
+            redirect_uri: "https://surya-dawn.github.io/surya-ai/sign-in.html"
           }
         });
       } catch (error) {
@@ -405,7 +407,8 @@
         await auth0Client.loginWithRedirect({
           authorizationParams: {
             connection: 'Username-Password-Authentication',
-            login_hint: email
+            login_hint: email,
+            redirect_uri: "https://surya-dawn.github.io/surya-ai/sign-in.html"
           }
         });
       } catch (error) {
@@ -419,7 +422,7 @@
       try {
         await auth0Client.logout({
           logoutParams: {
-            returnTo: window.location.origin
+            returnTo: "https://surya-dawn.github.io/surya-ai/sign-in.html"
           }
         });
       } catch (error) {
