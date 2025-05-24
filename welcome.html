@@ -461,7 +461,7 @@ function enhanceWelcomeButtonNavigation() {
       const originalOnclick = button.onclick;
       button.onclick = function(e) {
         e.preventDefault();
-        const targetUrl = 'sign-up.html';
+        const targetUrl = 'sign-in.html';
         createPageTransition(targetUrl);
       };
     }
