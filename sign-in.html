@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign In - Surya AI</title>
+  <title>Sign In - Surya AI (Debug Mode)</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
   <style>
@@ -41,6 +41,26 @@
       margin-bottom: 30px;
       text-align: left;
       width: 100%;
+    }
+
+    .debug-section {
+      width: 100%;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      color: #fff;
+      font-size: 14px;
+      font-family: monospace;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .debug-title {
+      color: #a8cbf8;
+      font-weight: bold;
+      margin-bottom: 10px;
     }
 
     .form-section {
@@ -117,23 +137,6 @@
     .sign-in-btn.loading {
       opacity: 0.7;
       pointer-events: none;
-    }
-
-    .loading::after {
-      content: '';
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      border: 2px solid #ffffff;
-      border-top: 2px solid transparent;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-left: 10px;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
     }
 
     .divider {
@@ -281,7 +284,13 @@
 </head>
 <body>
   <div class="container">
-    <h1 class="title">Sign in with your Surya Account</h1>
+    <h1 class="title">Sign in with your Surya Account (Debug Mode)</h1>
+    
+    <!-- Debug Information -->
+    <div class="debug-section">
+      <div class="debug-title">Debug Information:</div>
+      <div id="debugInfo">Initializing...</div>
+    </div>
     
     <form id="signInForm" class="form-section">
       <div class="form-group">
@@ -327,46 +336,145 @@
   </div>
 
   <script>
-    // Auth0 Configuration
+    // Debug logging function
+    function debugLog(message) {
+      console.log(message);
+      const debugElement = document.getElementById('debugInfo');
+      const timestamp = new Date().toLocaleTimeString();
+      debugElement.innerHTML += `<br>[${timestamp}] ${message}`;
+      debugElement.scrollTop = debugElement.scrollHeight;
+    }
+
+    // Auth0 Configuration with validation
     const AUTH0_CONFIG = {
       domain: "dev-5cmmp041gk4mk82c.uk.auth0.com",
       clientId: "3wZIXiMVoAnvqgKNlpQIOcXSZORq2RZN",
       authorizationParams: {
         redirect_uri: window.location.origin
-      }
+      },
+      cacheLocation: 'localstorage', // Try different cache locations
+      useRefreshTokens: true
     };
 
     let auth0Client = null;
     let currentUser = null;
 
-    // Initialize Auth0 Client
+    // Validate Auth0 configuration
+    function validateAuth0Config() {
+      debugLog("Validating Auth0 configuration...");
+      
+      if (!AUTH0_CONFIG.domain) {
+        debugLog("❌ Error: Auth0 domain is missing");
+        return false;
+      }
+      
+      if (!AUTH0_CONFIG.clientId) {
+        debugLog("❌ Error: Auth0 clientId is missing");
+        return false;
+      }
+      
+      if (!AUTH0_CONFIG.authorizationParams.redirect_uri) {
+        debugLog("❌ Error: redirect_uri is missing");
+        return false;
+      }
+      
+      debugLog(`✅ Domain: ${AUTH0_CONFIG.domain}`);
+      debugLog(`✅ Client ID: ${AUTH0_CONFIG.clientId}`);
+      debugLog(`✅ Redirect URI: ${AUTH0_CONFIG.authorizationParams.redirect_uri}`);
+      debugLog(`✅ Current URL: ${window.location.href}`);
+      
+      return true;
+    }
+
+    // Initialize Auth0 Client with better error handling
     async function initAuth0() {
+      debugLog("Starting Auth0 initialization...");
+      
       try {
-        auth0Client = await createAuth0Client(AUTH0_CONFIG);
+        // Check if Auth0 SDK is loaded
+        if (typeof createAuth0Client === 'undefined') {
+          throw new Error('Auth0 SDK not loaded. Check CDN connection.');
+        }
+        
+        debugLog("✅ Auth0 SDK loaded successfully");
+        
+        // Validate configuration
+        if (!validateAuth0Config()) {
+          throw new Error('Invalid Auth0 configuration');
+        }
+        
+        // Create Auth0 client with timeout
+        debugLog("Creating Auth0 client...");
+        const clientPromise = createAuth0Client(AUTH0_CONFIG);
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Auth0 client creation timeout')), 10000);
+        });
+        
+        auth0Client = await Promise.race([clientPromise, timeoutPromise]);
+        debugLog("✅ Auth0 client created successfully");
+
+        // Test connection to Auth0 domain
+        try {
+          debugLog("Testing connection to Auth0 domain...");
+          const response = await fetch(`https://${AUTH0_CONFIG.domain}/.well-known/jwks.json`);
+          if (response.ok) {
+            debugLog("✅ Auth0 domain is accessible");
+          } else {
+            debugLog(`⚠️ Auth0 domain returned status: ${response.status}`);
+          }
+        } catch (fetchError) {
+          debugLog(`⚠️ Cannot reach Auth0 domain: ${fetchError.message}`);
+        }
 
         // Handle redirect after login
         if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
+          debugLog("Handling redirect callback...");
           try {
             await auth0Client.handleRedirectCallback();
+            debugLog("✅ Redirect callback handled successfully");
             window.history.replaceState({}, document.title, "/");
           } catch (error) {
+            debugLog(`❌ Redirect callback error: ${error.message}`);
             showStatus('Authentication error: ' + error.message, 'error');
             return;
           }
         }
 
         // Check authentication status
+        debugLog("Checking authentication status...");
         const isAuthenticated = await auth0Client.isAuthenticated();
+        debugLog(`Authentication status: ${isAuthenticated}`);
+        
         if (isAuthenticated) {
           currentUser = await auth0Client.getUser();
+          debugLog(`✅ User authenticated: ${currentUser.email}`);
           console.log("User Info:", currentUser);
           showAuthenticatedUI();
         } else {
+          debugLog("User not authenticated");
           showUnauthenticatedUI();
         }
+        
+        debugLog("✅ Auth0 initialization completed successfully");
+        
       } catch (error) {
+        debugLog(`❌ Auth0 initialization failed: ${error.message}`);
         console.error('Auth0 initialization error:', error);
-        showStatus('Authentication service initialization failed', 'error');
+        
+        // Provide specific troubleshooting steps
+        let troubleshootingMessage = 'Auth0 initialization failed. ';
+        
+        if (error.message.includes('timeout')) {
+          troubleshootingMessage += 'Connection timeout - check your internet connection.';
+        } else if (error.message.includes('SDK not loaded')) {
+          troubleshootingMessage += 'Auth0 SDK failed to load from CDN.';
+        } else if (error.message.includes('Invalid configuration')) {
+          troubleshootingMessage += 'Check your Auth0 domain and client ID.';
+        } else {
+          troubleshootingMessage += 'Check console for details.';
+        }
+        
+        showStatus(troubleshootingMessage, 'error');
       }
     }
 
@@ -388,7 +496,7 @@
     }
 
     function showUnauthenticatedUI() {
-      document.querySelector('.title').textContent = 'Sign in with your Surya Account';
+      document.querySelector('.title').textContent = 'Sign in with your Surya Account (Debug Mode)';
       document.getElementById("statusIndicator").style.display = "none";
       document.getElementById("authControls").classList.remove("show");
       document.getElementById("signInForm").style.display = "block";
@@ -436,6 +544,7 @@
       // Email/Password Form Submission
       document.getElementById("signInForm").addEventListener("submit", async (e) => {
         e.preventDefault();
+        debugLog("Email/password form submitted");
         
         const emailInput = document.getElementById("email");
         const passwordInput = document.getElementById("password");
@@ -471,12 +580,19 @@
         signInBtn.textContent = "Signing in...";
         
         try {
-          // Note: Auth0 SPA SDK doesn't support direct email/password login
-          // This would require Universal Login or a custom backend
-          showStatus("Email/password login requires Universal Login with database connection enabled in Auth0.", 'error');
+          // For email/password login, you need to redirect to Universal Login
+          debugLog("Redirecting to Universal Login for email/password authentication");
+          if (auth0Client) {
+            await auth0Client.loginWithRedirect({
+              screen_hint: 'login'
+            });
+          } else {
+            throw new Error('Auth0 client not initialized');
+          }
         } catch (err) {
+          debugLog(`❌ Email/password login error: ${err.message}`);
           console.error(err);
-          showStatus("Login failed. Please try again.", 'error');
+          showStatus("Login failed: " + err.message, 'error');
         } finally {
           signInBtn.classList.remove("loading");
           signInBtn.textContent = "Sign In";
@@ -485,16 +601,22 @@
 
       // Google Login
       document.getElementById("googleBtn").addEventListener("click", async () => {
+        debugLog("Google login button clicked");
         const btn = document.getElementById("googleBtn");
         btn.style.transform = 'scale(0.98)';
         
         setTimeout(async () => {
           btn.style.transform = 'scale(1)';
           try {
+            if (!auth0Client) {
+              throw new Error('Auth0 client not initialized');
+            }
+            debugLog("Initiating Google OAuth login");
             await auth0Client.loginWithRedirect({
               connection: "google-oauth2"
             });
           } catch (error) {
+            debugLog(`❌ Google login error: ${error.message}`);
             showStatus('Google sign-in failed: ' + error.message, 'error');
           }
         }, 150);
@@ -502,16 +624,22 @@
 
       // Facebook Login
       document.getElementById("facebookBtn").addEventListener("click", async () => {
+        debugLog("Facebook login button clicked");
         const btn = document.getElementById("facebookBtn");
         btn.style.transform = 'scale(0.98)';
         
         setTimeout(async () => {
           btn.style.transform = 'scale(1)';
           try {
+            if (!auth0Client) {
+              throw new Error('Auth0 client not initialized');
+            }
+            debugLog("Initiating Facebook OAuth login");
             await auth0Client.loginWithRedirect({
               connection: "facebook"
             });
           } catch (error) {
+            debugLog(`❌ Facebook login error: ${error.message}`);
             showStatus('Facebook sign-in failed: ' + error.message, 'error');
           }
         }, 150);
@@ -519,13 +647,18 @@
 
       // Logout
       document.getElementById("logoutBtn").addEventListener("click", async () => {
+        debugLog("Logout button clicked");
         try {
+          if (!auth0Client) {
+            throw new Error('Auth0 client not initialized');
+          }
           await auth0Client.logout({
             logoutParams: {
               returnTo: window.location.origin
             }
           });
         } catch (error) {
+          debugLog(`❌ Logout error: ${error.message}`);
           showStatus('Logout failed: ' + error.message, 'error');
         }
       });
@@ -548,105 +681,9 @@
       });
     }
 
-    // Animation functions
-    function initSignUpAnimations() {
-      const container = document.querySelector('.container');
-      const title = document.querySelector('.title');
-      const formGroups = document.querySelectorAll('.form-group');
-      const signInBtn = document.querySelector('.sign-in-btn');
-      const divider = document.querySelector('.divider');
-      const socialBtns = document.querySelectorAll('.social-btn');
-
-      // Set initial states
-      container.style.opacity = '0';
-      container.style.transform = 'scale(0.9) translateY(30px)';
-      container.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-
-      const elements = [title, ...formGroups, signInBtn, divider, ...socialBtns];
-      elements.forEach(el => {
-        if (el) {
-          el.style.opacity = '0';
-          el.style.transform = 'translateY(20px)';
-          el.style.transition = 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-        }
-      });
-
-      // Animate container
-      setTimeout(() => {
-        container.style.opacity = '1';
-        container.style.transform = 'scale(1) translateY(0)';
-      }, 100);
-
-      // Animate elements sequentially
-      elements.forEach((el, index) => {
-        if (el) {
-          setTimeout(() => {
-            el.style.opacity = '1';
-            el.style.transform = 'translateY(0)';
-          }, 300 + (index * 100));
-        }
-      });
-
-      // Add input focus animations
-      document.querySelectorAll('.input-field').forEach(input => {
-        input.addEventListener('focus', function() {
-          this.style.transform = 'scale(1.02)';
-        });
-        
-        input.addEventListener('blur', function() {
-          this.style.transform = 'scale(1)';
-        });
-      });
-
-      // Add button hover effects
-      document.querySelectorAll('.social-btn, .sign-in-btn').forEach(btn => {
-        btn.addEventListener('mouseenter', function() {
-          this.style.transform = 'translateY(-3px) scale(1.02)';
-        });
-        
-        btn.addEventListener('mouseleave', function() {
-          this.style.transform = 'translateY(0) scale(1)';
-        });
-      });
-
-      // Create ambient background
-      createAmbientBackground();
-    }
-
-    // Ambient background animation
-    function createAmbientBackground() {
-      const ambientCount = 6;
-      
-      for (let i = 0; i < ambientCount; i++) {
-        setTimeout(() => {
-          const ambient = document.createElement('div');
-          ambient.style.position = 'fixed';
-          ambient.style.width = Math.random() * 150 + 80 + 'px';
-          ambient.style.height = ambient.style.width;
-          ambient.style.background = `radial-gradient(circle, rgba(168, 203, 248, ${Math.random() * 0.08 + 0.03}), transparent)`;
-          ambient.style.borderRadius = '50%';
-          ambient.style.left = Math.random() * window.innerWidth + 'px';
-          ambient.style.top = Math.random() * window.innerHeight + 'px';
-          ambient.style.pointerEvents = 'none';
-          ambient.style.zIndex = '-1';
-          ambient.style.animation = `ambientFloat ${Math.random() * 25 + 20}s ease-in-out infinite`;
-          
-          document.body.appendChild(ambient);
-          
-          setTimeout(() => {
-            if (ambient.parentNode) {
-              ambient.parentNode.removeChild(ambient);
-            }
-          }, 45000);
-        }, Math.random() * 2000);
-      }
-      
-      setTimeout(createAmbientBackground, 20000);
-    }
-
     // Initialize everything when DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {
-      initSignUpAnimations();
+      debugLog("DOM loaded, starting initialization");
       setupEventListeners();
       initAuth0();
     });
@@ -654,6 +691,7 @@
     // Also initialize on window load as backup
     window.onload = function() {
       if (!auth0Client) {
+        debugLog("Window loaded, Auth0 not initialized, retrying...");
         initAuth0();
       }
     };
