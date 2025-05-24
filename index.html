@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Surya AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0..200" rel="stylesheet" />
+  <style>
+    :root {
+    --accent-color: #ff5e3a;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: linear-gradient(135deg, var(--accent-color) 0%, #5a3fff 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    font-size: 15px;
+    font-family: 'Poppins', sans-serif;
+}
+
+h1 {
+    font-size: 48px;
+    font-weight: 700;
+    color: #000000;
+    text-align: center;
+    margin-bottom: 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    font-weight: 600;
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+        <img src="surya-ai.png" alt="Surya AI Logo" class="logo" />
+    </div>
+    <h1>Surya AI</h1>
+    <p>The way to revolutionize the world</p>
+    <button onclick="window.location.href='welcome.html'">Sign In</button>
+  </div>
+  <script>
+// Main page animations (for index.html)
+function initMainPageAnimations() {
+  // Wait for DOM to be fully loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get all elements
+    const logo = document.querySelector('.logo');
+    const title = document.querySelector('h1');
+    const subtitle = document.querySelector('p');
+    const button = document.querySelector('button');
+    const container = document.querySelector('.container');
+
+    // Set initial states (invisible and positioned)
+    const elements = [logo, title, subtitle, button];
+    elements.forEach(el => {
+      if (el) {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+      }
+    });
+
+    // Add container fade-in
+    if (container) {
+      container.style.opacity = '0';
+      container.style.transform = 'scale(0.95)';
+      container.style.transition = 'all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+    }
+
+    // Animate elements in sequence
+    setTimeout(() => {
+      if (container) {
+        container.style.opacity = '1';
+        container.style.transform = 'scale(1)';
+      }
+    }, 100);
+
+    setTimeout(() => {
+      if (logo) {
+        logo.style.opacity = '1';
+        logo.style.transform = 'translateY(0) scale(1)';
+        // Add a subtle bounce effect to logo
+        logo.style.animation = 'logoFloat 3s ease-in-out infinite';
+      }
+    }, 300);
+
+    setTimeout(() => {
+      if (title) {
+        title.style.opacity = '1';
+        title.style.transform = 'translateY(0)';
+      }
+    }, 500);
+
+    setTimeout(() => {
+      if (subtitle) {
+        subtitle.style.opacity = '1';
+        subtitle.style.transform = 'translateY(0)';
+      }
+    }, 700);
+
+    setTimeout(() => {
+      if (button) {
+        button.style.opacity = '1';
+        button.style.transform = 'translateY(0)';
+        // Add enhanced hover animation
+        addButtonHoverEffects(button);
+      }
+    }, 900);
+
+    // Add floating animation keyframes
+    addFloatingAnimation();
+    
+    // Add particle effect
+    createParticleEffect();
+  });
+}
+
+// Next page animations (for welcome.html)
+function initWelcomePageAnimations() {
+  document.addEventListener('DOMContentLoaded', function() {
+    // Create slide-in transition effect
+    const body = document.body;
+    body.style.opacity = '0';
+    body.style.transform = 'translateX(100px)';
+    body.style.transition = 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+
+    setTimeout(() => {
+      body.style.opacity = '1';
+      body.style.transform = 'translateX(0)';
+    }, 50);
+
+    // Animate all content elements
+    const allElements = document.querySelectorAll('*');
+    allElements.forEach((el, index) => {
+      if (el !== body && el.tagName !== 'HTML' && el.tagName !== 'HEAD' && el.tagName !== 'SCRIPT') {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = `all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${index * 0.1}s`;
+        
+        setTimeout(() => {
+          el.style.opacity = '1';
+          el.style.transform = 'translateY(0)';
+        }, 200 + (index * 50));
+      }
+    });
+  });
+}
+
+// Enhanced button hover effects
+function addButtonHoverEffects(button) {
+  button.addEventListener('mouseenter', function() {
+    this.style.transform = 'translateY(-2px) scale(1.05)';
+    this.style.boxShadow = '0 8px 25px rgba(168, 203, 248, 0.4)';
+  });
+
+  button.addEventListener('mouseleave', function() {
+    this.style.transform = 'translateY(0) scale(1)';
+    this.style.boxShadow = 'none';
+  });
+
+  button.addEventListener('mousedown', function() {
+    this.style.transform = 'translateY(0) scale(0.98)';
+  });
+
+  button.addEventListener('mouseup', function() {
+    this.style.transform = 'translateY(-2px) scale(1.05)';
+  });
+}
+
+// Add floating animation keyframes
+function addFloatingAnimation() {
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(2deg); }
+    }
+    
+    @keyframes particleFloat {
+      0% { transform: translateY(100vh) translateX(0) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-100px) translateX(50px) rotate(360deg); opacity: 0; }
+    }
+    
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+// Create subtle particle effect
+function createParticleEffect() {
+  const particleCount = 15;
+  
+  for (let i = 0; i < particleCount; i++) {
+    setTimeout(() => {
+      const particle = document.createElement('div');
+      particle.style.position = 'fixed';
+      particle.style.width = Math.random() * 4 + 2 + 'px';
+      particle.style.height = particle.style.width;
+      particle.style.backgroundColor = `rgba(168, 203, 248, ${Math.random() * 0.3 + 0.1})`;
+      particle.style.borderRadius = '50%';
+      particle.style.left = Math.random() * window.innerWidth + 'px';
+      particle.style.pointerEvents = 'none';
+      particle.style.zIndex = '-1';
+      particle.style.animation = `particleFloat ${Math.random() * 10 + 10}s linear infinite`;
+      
+      document.body.appendChild(particle);
+      
+      // Remove particle after animation
+      setTimeout(() => {
+        if (particle.parentNode) {
+          particle.parentNode.removeChild(particle);
+        }
+      }, 20000);
+    }, Math.random() * 5000);
+  }
+  
+  // Continue creating particles
+  setTimeout(createParticleEffect, 8000);
+}
+
+// Page transition animation
+function createPageTransition(targetUrl) {
+  const overlay = document.createElement('div');
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0';
+  overlay.style.left = '0';
+  overlay.style.width = '100%';
+  overlay.style.height = '100%';
+  overlay.style.background = 'linear-gradient(45deg, #000000, #004e9a)';
+  overlay.style.zIndex = '9999';
+  overlay.style.opacity = '0';
+  overlay.style.transition = 'opacity 0.5s ease-in-out';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  
+  // Add loading animation
+  const loader = document.createElement('div');
+  loader.innerHTML = '✨ Loading...';
+  loader.style.color = '#dceaff';
+  loader.style.fontSize = '20px';
+  loader.style.fontFamily = 'Poppins, sans-serif';
+  overlay.appendChild(loader);
+  
+  document.body.appendChild(overlay);
+  
+  // Trigger transition
+  setTimeout(() => {
+    overlay.style.opacity = '1';
+  }, 10);
+  
+  // Navigate after transition
+  setTimeout(() => {
+    window.location.href = targetUrl;
+  }, 500);
+}
+
+// Enhanced button click with transition
+function enhanceButtonNavigation() {
+  document.addEventListener('DOMContentLoaded', function() {
+    const button = document.querySelector('button');
+    if (button && button.onclick) {
+      const originalOnclick = button.onclick;
+      button.onclick = function(e) {
+        e.preventDefault();
+        const targetUrl = 'welcome.html';
+        createPageTransition(targetUrl);
+      };
+    }
+  });
+}
+
+// Initialize animations based on current page
+function initAnimations() {
+  const isMainPage = document.title === 'Surya AI' || window.location.pathname.includes('index') || window.location.pathname === '/';
+  
+  if (isMainPage) {
+    initMainPageAnimations();
+    enhanceButtonNavigation();
+  } else {
+    initWelcomePageAnimations();
+  }
+}
+
+// Auto-initialize
+initAnimations();
+</script>
+</body>
+</html>
