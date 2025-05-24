@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign In - Surya AI (Debug Mode)</title>
+  <title>Sign In - Surya AI</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
   <style>
@@ -44,23 +44,7 @@
     }
 
     .debug-section {
-      width: 100%;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 20px;
-      color: #fff;
-      font-size: 14px;
-      font-family: monospace;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
-    .debug-title {
-      color: #a8cbf8;
-      font-weight: bold;
-      margin-bottom: 10px;
+      display: none;
     }
 
     .form-section {
@@ -251,6 +235,24 @@
       transform: translateY(-1px);
     }
 
+    .user-info {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      color: #fff;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .user-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      margin-bottom: 10px;
+    }
+
     /* Animation keyframes */
     @keyframes slideInUp {
       from {
@@ -284,12 +286,11 @@
 </head>
 <body>
   <div class="container">
-    <h1 class="title">Sign in with your Surya Account (Debug Mode)</h1>
+    <h1 class="title">Sign in with your Surya Account</h1>
     
-    <!-- Debug Information -->
-    <div class="debug-section">
-      <div class="debug-title">Debug Information:</div>
-      <div id="debugInfo">Initializing...</div>
+    <!-- User Info (shown when authenticated) -->
+    <div class="user-info" id="userInfo" style="display: none;">
+      <div id="userDetails"></div>
     </div>
     
     <form id="signInForm" class="form-section">
@@ -303,7 +304,7 @@
         <div class="error-message" id="passwordError"></div>
       </div>
       
-      <button type="submit" class="sign-in-btn" id="signInBtn">Sign In</button>
+      <button type="submit" class="sign-in-btn" id="signInBtn">Sign In with Email</button>
       <div class="success-message" id="successMessage">Sign in successful!</div>
     </form>
 
@@ -336,23 +337,20 @@
   </div>
 
   <script>
-    // Debug logging function
+    // Debug logging function (silent mode)
     function debugLog(message) {
       console.log(message);
-      const debugElement = document.getElementById('debugInfo');
-      const timestamp = new Date().toLocaleTimeString();
-      debugElement.innerHTML += `<br>[${timestamp}] ${message}`;
-      debugElement.scrollTop = debugElement.scrollHeight;
+      // Debug section removed from UI
     }
 
-    // Auth0 Configuration with validation
+    // Auth0 Configuration - REPLACE WITH YOUR ACTUAL VALUES
     const AUTH0_CONFIG = {
-      domain: "dev-5cmmp041gk4mk82c.uk.auth0.com",
-      clientId: "3wZIXiMVoAnvqgKNlpQIOcXSZORq2RZN",
+      domain: "dev-5cmmp041gk4mk82c.uk.auth0.com", // Replace with your domain
+      clientId: "3wZIXiMVoAnvqgKNlpQIOcXSZORq2RZN", // Replace with your client ID
       authorizationParams: {
         redirect_uri: window.location.origin
       },
-      cacheLocation: 'localstorage', // Try different cache locations
+      cacheLocation: 'memory', // Changed from 'localstorage' to 'memory' for better compatibility
       useRefreshTokens: true
     };
 
@@ -373,11 +371,6 @@
         return false;
       }
       
-      if (!AUTH0_CONFIG.authorizationParams.redirect_uri) {
-        debugLog("❌ Error: redirect_uri is missing");
-        return false;
-      }
-      
       debugLog(`✅ Domain: ${AUTH0_CONFIG.domain}`);
       debugLog(`✅ Client ID: ${AUTH0_CONFIG.clientId}`);
       debugLog(`✅ Redirect URI: ${AUTH0_CONFIG.authorizationParams.redirect_uri}`);
@@ -386,7 +379,7 @@
       return true;
     }
 
-    // Initialize Auth0 Client with better error handling
+    // Initialize Auth0 Client
     async function initAuth0() {
       debugLog("Starting Auth0 initialization...");
       
@@ -403,28 +396,10 @@
           throw new Error('Invalid Auth0 configuration');
         }
         
-        // Create Auth0 client with timeout
+        // Create Auth0 client
         debugLog("Creating Auth0 client...");
-        const clientPromise = createAuth0Client(AUTH0_CONFIG);
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Auth0 client creation timeout')), 10000);
-        });
-        
-        auth0Client = await Promise.race([clientPromise, timeoutPromise]);
+        auth0Client = await createAuth0Client(AUTH0_CONFIG);
         debugLog("✅ Auth0 client created successfully");
-
-        // Test connection to Auth0 domain
-        try {
-          debugLog("Testing connection to Auth0 domain...");
-          const response = await fetch(`https://${AUTH0_CONFIG.domain}/.well-known/jwks.json`);
-          if (response.ok) {
-            debugLog("✅ Auth0 domain is accessible");
-          } else {
-            debugLog(`⚠️ Auth0 domain returned status: ${response.status}`);
-          }
-        } catch (fetchError) {
-          debugLog(`⚠️ Cannot reach Auth0 domain: ${fetchError.message}`);
-        }
 
         // Handle redirect after login
         if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
@@ -432,7 +407,8 @@
           try {
             await auth0Client.handleRedirectCallback();
             debugLog("✅ Redirect callback handled successfully");
-            window.history.replaceState({}, document.title, "/");
+            // Clean up URL
+            window.history.replaceState({}, document.title, window.location.pathname);
           } catch (error) {
             debugLog(`❌ Redirect callback error: ${error.message}`);
             showStatus('Authentication error: ' + error.message, 'error');
@@ -447,7 +423,7 @@
         
         if (isAuthenticated) {
           currentUser = await auth0Client.getUser();
-          debugLog(`✅ User authenticated: ${currentUser.email}`);
+          debugLog(`✅ User authenticated: ${currentUser.email || currentUser.name}`);
           console.log("User Info:", currentUser);
           showAuthenticatedUI();
         } else {
@@ -460,21 +436,7 @@
       } catch (error) {
         debugLog(`❌ Auth0 initialization failed: ${error.message}`);
         console.error('Auth0 initialization error:', error);
-        
-        // Provide specific troubleshooting steps
-        let troubleshootingMessage = 'Auth0 initialization failed. ';
-        
-        if (error.message.includes('timeout')) {
-          troubleshootingMessage += 'Connection timeout - check your internet connection.';
-        } else if (error.message.includes('SDK not loaded')) {
-          troubleshootingMessage += 'Auth0 SDK failed to load from CDN.';
-        } else if (error.message.includes('Invalid configuration')) {
-          troubleshootingMessage += 'Check your Auth0 domain and client ID.';
-        } else {
-          troubleshootingMessage += 'Check console for details.';
-        }
-        
-        showStatus(troubleshootingMessage, 'error');
+        showStatus('Auth0 initialization failed: ' + error.message, 'error');
       }
     }
 
@@ -483,7 +445,8 @@
       const title = document.querySelector('.title');
       if (currentUser) {
         title.textContent = `Welcome back, ${currentUser.name || currentUser.email}!`;
-        showStatus(`Successfully signed in as ${currentUser.email}`, 'success');
+        showUserInfo();
+        showStatus(`Successfully signed in as ${currentUser.email || currentUser.name}`, 'success');
       } else {
         title.textContent = "You're signed in!";
         showStatus("You're signed in!", 'success');
@@ -496,12 +459,35 @@
     }
 
     function showUnauthenticatedUI() {
-      document.querySelector('.title').textContent = 'Sign in with your Surya Account (Debug Mode)';
+      document.querySelector('.title').textContent = 'Sign in with your Surya Account';
       document.getElementById("statusIndicator").style.display = "none";
       document.getElementById("authControls").classList.remove("show");
+      document.getElementById("userInfo").style.display = "none";
       document.getElementById("signInForm").style.display = "block";
       document.querySelector(".divider").style.display = "block";
       document.querySelector(".social-section").style.display = "flex";
+    }
+
+    function showUserInfo() {
+      if (!currentUser) return;
+      
+      const userInfoElement = document.getElementById("userInfo");
+      const userDetailsElement = document.getElementById("userDetails");
+      
+      let userHtml = `
+        <h3 style="margin-top: 0; color: #a8cbf8;">User Information</h3>
+        <p><strong>Name:</strong> ${currentUser.name || 'N/A'}</p>
+        <p><strong>Email:</strong> ${currentUser.email || 'N/A'}</p>
+        <p><strong>Email Verified:</strong> ${currentUser.email_verified ? 'Yes' : 'No'}</p>
+        <p><strong>Last Updated:</strong> ${currentUser.updated_at ? new Date(currentUser.updated_at).toLocaleString() : 'N/A'}</p>
+      `;
+      
+      if (currentUser.picture) {
+        userHtml = `<img src="${currentUser.picture}" alt="User Avatar" class="user-avatar">` + userHtml;
+      }
+      
+      userDetailsElement.innerHTML = userHtml;
+      userInfoElement.style.display = "block";
     }
 
     // Status Display
@@ -546,56 +532,29 @@
         e.preventDefault();
         debugLog("Email/password form submitted");
         
-        const emailInput = document.getElementById("email");
-        const passwordInput = document.getElementById("password");
         const signInBtn = document.getElementById("signInBtn");
         
-        let isValid = true;
-        
-        // Validate email
-        if (!emailInput.value) {
-          showError('email', 'Email is required');
-          isValid = false;
-        } else if (!validateEmail(emailInput.value)) {
-          showError('email', 'Please enter a valid email');
-          isValid = false;
-        } else {
-          hideError('email');
-        }
-
-        // Validate password
-        if (!passwordInput.value) {
-          showError('password', 'Password is required');
-          isValid = false;
-        } else if (passwordInput.value.length < 6) {
-          showError('password', 'Password must be at least 6 characters');
-          isValid = false;
-        } else {
-          hideError('password');
-        }
-
-        if (!isValid) return;
-
         signInBtn.classList.add("loading");
-        signInBtn.textContent = "Signing in...";
+        signInBtn.textContent = "Redirecting to login...";
         
         try {
-          // For email/password login, you need to redirect to Universal Login
-          debugLog("Redirecting to Universal Login for email/password authentication");
-          if (auth0Client) {
-            await auth0Client.loginWithRedirect({
-              screen_hint: 'login'
-            });
-          } else {
+          if (!auth0Client) {
             throw new Error('Auth0 client not initialized');
           }
+          
+          debugLog("Redirecting to Universal Login for email/password authentication");
+          await auth0Client.loginWithRedirect({
+            authorizationParams: {
+              screen_hint: 'login'
+            }
+          });
         } catch (err) {
           debugLog(`❌ Email/password login error: ${err.message}`);
           console.error(err);
           showStatus("Login failed: " + err.message, 'error');
         } finally {
           signInBtn.classList.remove("loading");
-          signInBtn.textContent = "Sign In";
+          signInBtn.textContent = "Sign In with Email";
         }
       });
 
@@ -613,7 +572,9 @@
             }
             debugLog("Initiating Google OAuth login");
             await auth0Client.loginWithRedirect({
-              connection: "google-oauth2"
+              authorizationParams: {
+                connection: "google-oauth2"
+              }
             });
           } catch (error) {
             debugLog(`❌ Google login error: ${error.message}`);
@@ -636,7 +597,9 @@
             }
             debugLog("Initiating Facebook OAuth login");
             await auth0Client.loginWithRedirect({
-              connection: "facebook"
+              authorizationParams: {
+                connection: "facebook"
+              }
             });
           } catch (error) {
             debugLog(`❌ Facebook login error: ${error.message}`);
@@ -662,23 +625,6 @@
           showStatus('Logout failed: ' + error.message, 'error');
         }
       });
-
-      // Real-time validation
-      document.getElementById('email').addEventListener('blur', function() {
-        if (this.value && !validateEmail(this.value)) {
-          showError('email', 'Please enter a valid email');
-        } else {
-          hideError('email');
-        }
-      });
-
-      document.getElementById('password').addEventListener('blur', function() {
-        if (this.value && this.value.length < 6) {
-          showError('password', 'Password must be at least 6 characters');
-        } else {
-          hideError('password');
-        }
-      });
     }
 
     // Initialize everything when DOM is loaded
@@ -688,13 +634,13 @@
       initAuth0();
     });
 
-    // Also initialize on window load as backup
-    window.onload = function() {
+    // Backup initialization
+    window.addEventListener('load', function() {
       if (!auth0Client) {
         debugLog("Window loaded, Auth0 not initialized, retrying...");
         initAuth0();
       }
-    };
+    });
   </script>
 </body>
 </html>
