@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign In - Surya AI</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
@@ -14,12 +13,35 @@
       padding: 0;
       height: 100%;
       font-family: 'Poppins', sans-serif;
-      background: #000000;
+      background: linear-gradient(135deg, #000000 0%, #1a1a2e 50%, #16213e 100%);
       display: flex;
       justify-content: center;
       align-items: center;
       overflow: hidden;
+      position: relative;
     }
+
+    /* Animated background particles */
+    .bg-particles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .particle {
+      position: absolute;
+      background: rgba(168, 203, 248, 0.1);
+      border-radius: 50%;
+      animation: float 20s infinite linear;
+    }
+
+    .particle:nth-child(1) { width: 80px; height: 80px; left: 10%; animation-delay: 0s; }
+    .particle:nth-child(2) { width: 120px; height: 120px; left: 20%; animation-delay: 2s; }
+    .particle:nth-child(3) { width: 60px; height: 60px; left: 80%; animation-delay: 4s; }
+    .particle:nth-child(4) { width: 100px; height: 100px; left: 70%; animation-delay: 6s; }
+    .particle:nth-child(5) { width: 40px; height: 40px; left: 50%; animation-delay: 8s; }
 
     .container {
       display: flex;
@@ -27,58 +49,77 @@
       justify-content: center;
       align-items: flex-start;
       width: 800px;
-      background-color: #2a2a2a;
+      background: rgba(42, 42, 42, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(168, 203, 248, 0.1);
       border-radius: 20px;
       padding: 40px;
       box-sizing: border-box;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      position: relative;
+      z-index: 1;
+      animation: slideInUp 0.8s ease-out;
     }
 
     .title {
-      font-size: 24px;
-      font-weight: 600;
+      font-size: 28px;
+      font-weight: 700;
       color: #ffffff;
       margin-bottom: 30px;
       text-align: left;
       width: 100%;
-    }
-
-    .debug-section {
-      display: none;
+      background: linear-gradient(135deg, #a8cbf8, #ffffff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: titleGlow 2s ease-in-out infinite alternate;
     }
 
     .form-section {
       width: 100%;
       margin-bottom: 30px;
+      animation: fadeInUp 0.6s ease-out 0.2s both;
     }
 
     .form-group {
       width: 100%;
       margin-bottom: 20px;
+      animation: slideInLeft 0.5s ease-out both;
     }
+
+    .form-group:nth-child(2) { animation-delay: 0.1s; }
+    .form-group:nth-child(3) { animation-delay: 0.2s; }
+    .form-group:nth-child(4) { animation-delay: 0.3s; }
 
     .input-field {
       width: 100%;
       padding: 18px 24px;
-      background-color: #1a1a1a;
+      background-color: rgba(26, 26, 26, 0.8);
       border: 2px solid #333;
       border-radius: 12px;
       color: #ffffff;
       font-size: 16px;
       font-family: 'Poppins', sans-serif;
       outline: none;
-      transition: all 0.3s ease;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       box-sizing: border-box;
+      backdrop-filter: blur(10px);
     }
 
     .input-field::placeholder {
       color: #888;
+      transition: opacity 0.3s ease;
     }
 
     .input-field:focus {
       border-color: #a8cbf8;
-      background-color: #222;
-      box-shadow: 0 0 0 3px rgba(168, 203, 248, 0.1);
+      background-color: rgba(34, 34, 34, 0.9);
+      box-shadow: 0 0 0 4px rgba(168, 203, 248, 0.2), 0 8px 32px rgba(168, 203, 248, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .input-field:focus::placeholder {
+      opacity: 0.5;
     }
 
     .error-message {
@@ -87,6 +128,7 @@
       margin-top: 5px;
       display: none;
       text-align: left;
+      animation: shakeIn 0.5s ease-out;
     }
 
     .success-message {
@@ -95,12 +137,13 @@
       margin-top: 5px;
       display: none;
       text-align: left;
+      animation: bounceIn 0.6s ease-out;
     }
 
     .sign-in-btn {
       width: 100%;
       padding: 18px;
-      background-color: #a8cbf8;
+      background: linear-gradient(135deg, #a8cbf8, #c3dbff);
       border: none;
       border-radius: 12px;
       color: #000;
@@ -108,19 +151,41 @@
       font-weight: 600;
       font-family: 'Poppins', sans-serif;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       margin-top: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sign-in-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: all 0.6s;
     }
 
     .sign-in-btn:hover {
-      background-color: #c3dbff;
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(168, 203, 248, 0.3);
+      background: linear-gradient(135deg, #c3dbff, #a8cbf8);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(168, 203, 248, 0.4);
+    }
+
+    .sign-in-btn:hover::before {
+      left: 100%;
+    }
+
+    .sign-in-btn:active {
+      transform: translateY(-1px);
     }
 
     .sign-in-btn.loading {
-      opacity: 0.7;
+      opacity: 0.8;
       pointer-events: none;
+      animation: pulse 1.5s infinite;
     }
 
     .divider {
@@ -130,6 +195,18 @@
       font-weight: 500;
       text-align: left;
       width: 100%;
+      position: relative;
+      animation: fadeInUp 0.6s ease-out 0.4s both;
+    }
+
+    .divider::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: 0;
+      width: 60%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(168, 203, 248, 0.3));
     }
 
     .social-section {
@@ -137,12 +214,13 @@
       display: flex;
       flex-direction: column;
       gap: 15px;
+      animation: fadeInUp 0.6s ease-out 0.5s both;
     }
 
     .social-btn {
       width: 100%;
       padding: 18px 24px;
-      background-color: #1a1a1a;
+      background: rgba(26, 26, 26, 0.8);
       border: 2px solid #333;
       border-radius: 12px;
       color: #ffffff;
@@ -150,36 +228,55 @@
       font-weight: 500;
       font-family: 'Poppins', sans-serif;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       margin-bottom: 15px;
       display: flex;
       align-items: center;
       justify-content: flex-start;
       gap: 12px;
       box-sizing: border-box;
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .social-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transition: all 0.6s;
     }
 
     .social-btn:hover {
-      background-color: #333;
+      background: rgba(51, 51, 51, 0.9);
       border-color: #555;
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+    }
+
+    .social-btn:hover::before {
+      left: 100%;
     }
 
     .social-btn:last-child {
       margin-bottom: 0;
     }
 
-    .google-icon {
+    .google-icon, .facebook-icon, .github-icon, .microsoft-icon {
       width: 20px;
       height: 20px;
-      border-radius: 3px;
+      transition: transform 0.3s ease;
     }
 
-    .facebook-icon {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
+    .social-btn:hover .google-icon,
+    .social-btn:hover .facebook-icon,
+    .social-btn:hover .github-icon,
+    .social-btn:hover .microsoft-icon {
+      transform: scale(1.1) rotate(5deg);
     }
 
     .status-indicator {
@@ -191,18 +288,21 @@
       display: none;
       width: 100%;
       box-sizing: border-box;
+      animation: slideInUp 0.5s ease-out;
     }
 
     .status-indicator.success {
       background: rgba(81, 207, 102, 0.1);
       color: #51cf66;
       border: 1px solid rgba(81, 207, 102, 0.2);
+      animation: successPulse 0.8s ease-out;
     }
 
     .status-indicator.error {
       background: rgba(255, 107, 107, 0.1);
       color: #ff6b6b;
       border: 1px solid rgba(255, 107, 107, 0.2);
+      animation: errorShake 0.6s ease-out;
     }
 
     .auth-controls {
@@ -216,9 +316,11 @@
     .auth-controls.show {
       display: flex;
       justify-content: flex-start;
+      flex-wrap: wrap;
+      animation: fadeInUp 0.6s ease-out;
     }
 
-    .logout-btn {
+    .logout-btn, .profile-btn {
       padding: 12px 24px;
       background: #ff6b6b;
       color: white;
@@ -228,32 +330,106 @@
       font-family: 'Poppins', sans-serif;
       font-weight: 500;
       transition: all 0.3s ease;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+
+    .profile-btn {
+      background: linear-gradient(135deg, #a8cbf8, #c3dbff);
+      color: #000;
     }
 
     .logout-btn:hover {
       background: #ff5252;
-      transform: translateY(-1px);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+    }
+
+    .profile-btn:hover {
+      background: linear-gradient(135deg, #c3dbff, #a8cbf8);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(168, 203, 248, 0.3);
     }
 
     .user-info {
-      background: #1a1a1a;
-      border: 1px solid #333;
+      background: rgba(168, 203, 248, 0.1);
+      border: 1px solid rgba(168, 203, 248, 0.2);
       border-radius: 12px;
       padding: 20px;
-      margin-bottom: 20px;
-      color: #fff;
+      margin: 20px 0;
+      color: #ffffff;
       width: 100%;
       box-sizing: border-box;
+      animation: slideInUp 0.6s ease-out;
+      backdrop-filter: blur(10px);
     }
 
-    .user-avatar {
-      width: 50px;
-      height: 50px;
+    .user-info h3 {
+      margin: 0 0 15px 0;
+      color: #a8cbf8;
+      animation: titleGlow 2s ease-in-out infinite alternate;
+    }
+
+    .user-info p {
+      margin: 8px 0;
+      font-size: 14px;
+      animation: fadeInLeft 0.5s ease-out both;
+    }
+
+    .user-info p:nth-child(2) { animation-delay: 0.1s; }
+    .user-info p:nth-child(3) { animation-delay: 0.2s; }
+    .user-info p:nth-child(4) { animation-delay: 0.3s; }
+    .user-info p:nth-child(5) { animation-delay: 0.4s; }
+
+    .auth-toggle {
+      text-align: center;
+      margin-top: 20px;
+      animation: fadeInUp 0.6s ease-out 0.6s both;
+    }
+
+    .auth-toggle a {
+      color: #a8cbf8;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .auth-toggle a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #a8cbf8, #c3dbff);
+      transition: width 0.3s ease;
+    }
+
+    .auth-toggle a:hover::after {
+      width: 100%;
+    }
+
+    /* Loading spinner */
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #000;
+      border-top: 2px solid transparent;
       border-radius: 50%;
-      margin-bottom: 10px;
+      animation: spin 1s linear infinite;
+      margin-left: 10px;
     }
 
-    /* Animation keyframes */
+    /* Keyframe animations */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.1; }
+      25% { transform: translateY(-100px) rotate(90deg); opacity: 0.3; }
+      50% { transform: translateY(-200px) rotate(180deg); opacity: 0.1; }
+      75% { transform: translateY(-100px) rotate(270deg); opacity: 0.3; }
+    }
+
     @keyframes slideInUp {
       from {
         opacity: 0;
@@ -265,35 +441,173 @@
       }
     }
 
-    @keyframes fadeInScale {
+    @keyframes fadeInUp {
       from {
         opacity: 0;
-        transform: scale(0.9);
+        transform: translateY(30px);
       }
       to {
         opacity: 1;
-        transform: scale(1);
+        transform: translateY(0);
       }
     }
 
-    @keyframes ambientFloat {
-      0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
-      25% { transform: translate(50px, -30px) scale(1.1); opacity: 0.5; }
-      50% { transform: translate(-30px, 50px) scale(0.9); opacity: 0.3; }
-      75% { transform: translate(30px, 30px) scale(1.05); opacity: 0.4; }
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes fadeInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes titleGlow {
+      0% { text-shadow: 0 0 10px rgba(168, 203, 248, 0.3); }
+      100% { text-shadow: 0 0 20px rgba(168, 203, 248, 0.6), 0 0 30px rgba(168, 203, 248, 0.3); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes successPulse {
+      0% { transform: scale(0.9); opacity: 0; }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes errorShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    @keyframes shakeIn {
+      0% { transform: translateX(-10px); opacity: 0; }
+      25% { transform: translateX(10px); }
+      50% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+      100% { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0.3); opacity: 0; }
+      50% { transform: scale(1.05); }
+      70% { transform: scale(0.9); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Redirect overlay */
+    .redirect-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(26, 26, 46, 0.9));
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .redirect-content {
+      text-align: center;
+      color: white;
+      animation: scaleIn 0.6s ease-out;
+    }
+
+    .redirect-content h2 {
+      font-size: 28px;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #a8cbf8, #ffffff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .redirect-content p {
+      font-size: 16px;
+      margin-bottom: 30px;
+      opacity: 0.8;
+    }
+
+    .loading-bar {
+      width: 200px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+      overflow: hidden;
+      margin: 0 auto;
+    }
+
+    .loading-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #a8cbf8, #c3dbff);
+      border-radius: 2px;
+      animation: loadingProgress 3s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes loadingProgress {
+      from { width: 0%; }
+      to { width: 100%; }
     }
   </style>
 </head>
 <body>
+  <div class="bg-particles">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+
   <div class="container">
     <h1 class="title">Sign in with your Surya Account</h1>
     
-    <!-- User Info (shown when authenticated) -->
-    <div class="user-info" id="userInfo" style="display: none;">
-      <div id="userDetails"></div>
-    </div>
-    
-    <form id="signInForm" class="form-section">
+    <!-- Login/Register Form -->
+    <form id="authForm" class="form-section">
+      <div class="form-group" id="nameFields" style="display: none;">
+        <input type="text" class="input-field" id="firstName" placeholder="First Name">
+        <div class="error-message" id="firstNameError"></div>
+      </div>
+      
+      <div class="form-group" id="lastNameField" style="display: none;">
+        <input type="text" class="input-field" id="lastName" placeholder="Last Name">
+        <div class="error-message" id="lastNameError"></div>
+      </div>
+      
       <div class="form-group">
         <input type="email" class="input-field" id="email" placeholder="Email" required>
         <div class="error-message" id="emailError"></div>
@@ -304,9 +618,13 @@
         <div class="error-message" id="passwordError"></div>
       </div>
       
-      <button type="submit" class="sign-in-btn" id="signInBtn">Sign In with Email</button>
-      <div class="success-message" id="successMessage">Sign in successful!</div>
+      <button type="submit" class="sign-in-btn" id="authBtn">Sign In</button>
+      <div class="success-message" id="successMessage">Authentication successful!</div>
     </form>
+
+    <div class="auth-toggle">
+      <a href="#" id="toggleAuth">Don't have an account? Register here</a>
+    </div>
 
     <div class="divider">Sign in with third party services</div>
 
@@ -321,9 +639,12 @@
         Sign in with Google
       </button>
       
-      <button class="social-btn" id="Microsoft" type="button">
-        <svg class="facebook-icon" viewBox="0 0 24 24" fill="#1877F2">
-          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+      <button class="social-btn" id="microsoftBtn" type="button">
+        <svg class="microsoft-icon" viewBox="0 0 24 24">
+          <path fill="#f25022" d="M0 0h11.377v11.372H0z"/>
+          <path fill="#00a4ef" d="M12.623 0H24v11.372H12.623z"/>
+          <path fill="#7fba00" d="M0 12.628h11.377V24H0z"/>
+          <path fill="#ffb900" d="M12.623 12.628H24V24H12.623z"/>
         </svg>
         Sign in with Microsoft
       </button>
@@ -331,129 +652,214 @@
 
     <div class="status-indicator" id="statusIndicator"></div>
     
+    <!-- User Info Display -->
+    <div class="user-info" id="userInfo" style="display: none;">
+      <h3>Profile Information</h3>
+      <p><strong>Email:</strong> <span id="userEmail"></span></p>
+      <p><strong>Name:</strong> <span id="userName"></span></p>
+      <p><strong>Provider:</strong> <span id="userProvider"></span></p>
+      <p><strong>Last Login:</strong> <span id="userLastLogin"></span></p>
+    </div>
+    
     <div class="auth-controls" id="authControls">
+      <button class="profile-btn" id="profileBtn">View Profile</button>
       <button class="logout-btn" id="logoutBtn">Logout</button>
     </div>
   </div>
 
+  <!-- Redirect Overlay -->
+  <div class="redirect-overlay" id="redirectOverlay">
+    <div class="redirect-content">
+      <h2>Welcome to Surya AI!</h2>
+      <p>Setting up your permissions...</p>
+      <div class="loading-bar">
+        <div class="loading-bar-fill"></div>
+      </div>
+    </div>
+  </div>
+
+
   <script>
-    // Debug logging function (silent mode)
-    function debugLog(message) {
-      console.log(message);
-      // Debug section removed from UI
-    }
-
-    // Auth0 Configuration - REPLACE WITH YOUR ACTUAL VALUES
-    const AUTH0_CONFIG = {
-      domain: "dev-5cmmp041gk4mk82c.uk.auth0.com",
-      clientId: "3wZIXiMVoAnvqgKNlpQIOcXSZORq2RZN",
-      authorizationParams: {
-        redirect_uri: window.location.origin
-      },
-      cacheLocation: 'memory', // Changed from 'localstorage' to 'memory' for better compatibility
-      useRefreshTokens: true
-    };
-
-    let auth0Client = null;
+    // Configuration - Update these to match your Flask server
+    const API_BASE_URL = 'http://localhost:5000';
+    
+    // State management
     let currentUser = null;
+    let authToken = null;
+    let isLoginMode = true;
 
-    // Validate Auth0 configuration
-    function validateAuth0Config() {
-      debugLog("Validating Auth0 configuration...");
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeApp();
+      setupEventListeners();
+      checkExistingAuth();
+    });
+
+    function initializeApp() {
+      initSignUpAnimations();
       
-      if (!AUTH0_CONFIG.domain) {
-        debugLog("❌ Error: Auth0 domain is missing");
-        return false;
+      // Check if user is already logged in
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        verifyToken(token);
       }
-      
-      if (!AUTH0_CONFIG.clientId) {
-        debugLog("❌ Error: Auth0 clientId is missing");
-        return false;
-      }
-      
-      debugLog(`✅ Domain: ${AUTH0_CONFIG.domain}`);
-      debugLog(`✅ Client ID: ${AUTH0_CONFIG.clientId}`);
-      debugLog(`✅ Redirect URI: ${AUTH0_CONFIG.authorizationParams.redirect_uri}`);
-      debugLog(`✅ Current URL: ${window.location.href}`);
-      
-      return true;
     }
 
-    // Initialize Auth0 Client
-    async function initAuth0() {
-      debugLog("Starting Auth0 initialization...");
-      
+    // Authentication functions
+    async function verifyToken(token) {
       try {
-        // Check if Auth0 SDK is loaded
-        if (typeof createAuth0Client === 'undefined') {
-          throw new Error('Auth0 SDK not loaded. Check CDN connection.');
-        }
-        
-        debugLog("✅ Auth0 SDK loaded successfully");
-        
-        // Validate configuration
-        if (!validateAuth0Config()) {
-          throw new Error('Invalid Auth0 configuration');
-        }
-        
-        // Create Auth0 client
-        debugLog("Creating Auth0 client...");
-        auth0Client = await createAuth0Client(AUTH0_CONFIG);
-        debugLog("✅ Auth0 client created successfully");
+        const response = await fetch(`${API_BASE_URL}/auth/verify`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token })
+        });
 
-        // Handle redirect after login
-        if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
-          debugLog("Handling redirect callback...");
-          try {
-            await auth0Client.handleRedirectCallback();
-            debugLog("✅ Redirect callback handled successfully");
-            // Clean up URL
-            window.history.replaceState({}, document.title, window.location.pathname);
-          } catch (error) {
-            debugLog(`❌ Redirect callback error: ${error.message}`);
-            showStatus('Authentication error: ' + error.message, 'error');
-            return;
+        if (response.ok) {
+          const data = await response.json();
+          if (data.valid) {
+            authToken = token;
+            await fetchUserProfile();
+            showAuthenticatedUI();
+          } else {
+            localStorage.removeItem('authToken');
+            showUnauthenticatedUI();
           }
-        }
-
-        // Check authentication status
-        debugLog("Checking authentication status...");
-        const isAuthenticated = await auth0Client.isAuthenticated();
-        debugLog(`Authentication status: ${isAuthenticated}`);
-        
-        if (isAuthenticated) {
-          currentUser = await auth0Client.getUser();
-          debugLog(`✅ User authenticated: ${currentUser.email || currentUser.name}`);
-          console.log("User Info:", currentUser);
-          showAuthenticatedUI();
         } else {
-          debugLog("User not authenticated");
+          localStorage.removeItem('authToken');
           showUnauthenticatedUI();
         }
-        
-        debugLog("✅ Auth0 initialization completed successfully");
-        
       } catch (error) {
-        debugLog(`❌ Auth0 initialization failed: ${error.message}`);
-        console.error('Auth0 initialization error:', error);
-        showStatus('Auth0 initialization failed: ' + error.message, 'error');
+        console.error('Token verification failed:', error);
+        localStorage.removeItem('authToken');
+        showUnauthenticatedUI();
       }
+    }
+
+    async function fetchUserProfile() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          }
+        });
+
+        if (response.ok) {
+          currentUser = await response.json();
+        }
+      } catch (error) {
+        console.error('Failed to fetch user profile:', error);
+      }
+    }
+
+    async function handleEmailPasswordAuth(email, password, firstName = null, lastName = null) {
+      const endpoint = isLoginMode ? '/auth/login' : '/auth/register';
+      const body = isLoginMode 
+        ? { email, password }
+        : { email, password, first_name: firstName, last_name: lastName };
+
+      try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          authToken = data.token;
+          currentUser = data.user;
+          localStorage.setItem('authToken', authToken);
+          showAuthenticatedUI();
+          showStatus(`${isLoginMode ? 'Login' : 'Registration'} successful!`, 'success');
+        } else {
+          showStatus(data.error || 'Authentication failed', 'error');
+        }
+      } catch (error) {
+        console.error('Authentication error:', error);
+        showStatus('Network error. Please try again.', 'error');
+      }
+    }
+
+    async function handleSocialAuth(provider) {
+      try {
+        // Open OAuth popup
+        const width = 600;
+        const height = 700;
+        const left = window.screenX + (window.outerWidth - width) / 2;
+        const top = window.screenY + (window.outerHeight - height) / 2.5;
+        
+        const popup = window.open(
+          `${API_BASE_URL}/auth/oauth/${provider}`,
+          'oauth',
+          `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
+        );
+
+        // Listen for popup messages
+        const messageListener = (event) => {
+          if (event.origin !== API_BASE_URL.replace('/auth', '').replace(':5000', ':5000')) return;
+          
+          if (event.data.success) {
+            authToken = event.data.token;
+            currentUser = event.data.user;
+            localStorage.setItem('authToken', authToken);
+            popup.close();
+            showAuthenticatedUI();
+            showStatus(`${provider} login successful!`, 'success');
+            window.removeEventListener('message', messageListener);
+          } else {
+            showStatus(event.data.error || `${provider} login failed`, 'error');
+            popup.close();
+            window.removeEventListener('message', messageListener);
+          }
+        };
+
+        window.addEventListener('message', messageListener);
+
+        // Handle popup close without authentication
+        const checkClosed = setInterval(() => {
+          if (popup.closed) {
+            clearInterval(checkClosed);
+            window.removeEventListener('message', messageListener);
+            if (!authToken) {
+              showStatus('Authentication cancelled', 'error');
+            }
+          }
+        }, 1000);
+
+      } catch (error) {
+        console.error(`${provider} auth error:`, error);
+        showStatus(`${provider} authentication failed`, 'error');
+      }
+    }
+
+    function logout() {
+      authToken = null;
+      currentUser = null;
+      localStorage.removeItem('authToken');
+      showUnauthenticatedUI();
+      showStatus('Logged out successfully', 'success');
     }
 
     // UI State Management
     function showAuthenticatedUI() {
       const title = document.querySelector('.title');
       if (currentUser) {
-        title.textContent = `Welcome back, ${currentUser.name || currentUser.email}!`;
-        showUserInfo();
-        showStatus(`Successfully signed in as ${currentUser.email || currentUser.name}`, 'success');
+        const name = currentUser.first_name && currentUser.last_name 
+          ? `${currentUser.first_name} ${currentUser.last_name}`
+          : currentUser.email;
+        title.textContent = `Welcome back, ${name}!`;
       } else {
         title.textContent = "You're signed in!";
-        showStatus("You're signed in!", 'success');
       }
       
       document.getElementById("authControls").classList.add("show");
-      document.getElementById("signInForm").style.display = "none";
+      document.getElementById("authForm").style.display = "none";
+      document.querySelector(".auth-toggle").style.display = "none";
       document.querySelector(".divider").style.display = "none";
       document.querySelector(".social-section").style.display = "none";
     }
@@ -461,50 +867,144 @@
     function showUnauthenticatedUI() {
       document.querySelector('.title').textContent = 'Sign in with your Surya Account';
       document.getElementById("statusIndicator").style.display = "none";
-      document.getElementById("authControls").classList.remove("show");
       document.getElementById("userInfo").style.display = "none";
-      document.getElementById("signInForm").style.display = "block";
+      document.getElementById("authControls").classList.remove("show");
+      document.getElementById("authForm").style.display = "block";
+      document.querySelector(".auth-toggle").style.display = "block";
       document.querySelector(".divider").style.display = "block";
       document.querySelector(".social-section").style.display = "flex";
     }
 
-    function showUserInfo() {
+    function toggleAuthMode() {
+      isLoginMode = !isLoginMode;
+      const authBtn = document.getElementById('authBtn');
+      const toggleLink = document.getElementById('toggleAuth');
+      const nameFields = document.getElementById('nameFields');
+      const lastNameField = document.getElementById('lastNameField');
+      const title = document.querySelector('.title');
+
+      if (isLoginMode) {
+        authBtn.textContent = 'Sign In';
+        toggleLink.textContent = "Don't have an account? Register here";
+        nameFields.style.display = 'none';
+        lastNameField.style.display = 'none';
+        title.textContent = 'Sign in with your Surya Account';
+      } else {
+        authBtn.textContent = 'Register';
+        toggleLink.textContent = 'Already have an account? Sign in here';
+        nameFields.style.display = 'block';
+        lastNameField.style.display = 'block';
+        title.textContent = 'Create your Surya Account';
+      }
+    }
+
+    function showUserProfile() {
       if (!currentUser) return;
+
+      document.getElementById('userEmail').textContent = currentUser.email || 'N/A';
+      document.getElementById('userName').textContent = 
+        currentUser.first_name && currentUser.last_name 
+          ? `${currentUser.first_name} ${currentUser.last_name}`
+          : 'N/A';
+      document.getElementById('userProvider').textContent = currentUser.provider || 'Email/Password';
+      document.getElementById('userLastLogin').textContent = 
+        currentUser.last_login ? new Date(currentUser.last_login).toLocaleString() : 'N/A';
       
-      const userInfoElement = document.getElementById("userInfo");
-      const userDetailsElement = document.getElementById("userDetails");
-      
-      let userHtml = `
-        <h3 style="margin-top: 0; color: #a8cbf8;">User Information</h3>
-        <p><strong>Name:</strong> ${currentUser.name || 'N/A'}</p>
-        <p><strong>Email:</strong> ${currentUser.email || 'N/A'}</p>
-        <p><strong>Email Verified:</strong> ${currentUser.email_verified ? 'Yes' : 'No'}</p>
-        <p><strong>Last Updated:</strong> ${currentUser.updated_at ? new Date(currentUser.updated_at).toLocaleString() : 'N/A'}</p>
-      `;
-      
-      if (currentUser.picture) {
-        userHtml = `<img src="${currentUser.picture}" alt="User Avatar" class="user-avatar">` + userHtml;
-      }
-      
-      userDetailsElement.innerHTML = userHtml;
-      userInfoElement.style.display = "block";
+      const userInfo = document.getElementById('userInfo');
+      userInfo.style.display = userInfo.style.display === 'none' ? 'block' : 'none';
     }
 
-    // Status Display
-    function showStatus(message, type) {
-      const statusElement = document.getElementById('statusIndicator');
-      statusElement.textContent = message;
-      statusElement.className = `status-indicator ${type}`;
-      statusElement.style.display = 'block';
-      
-      if (type === 'success') {
-        setTimeout(() => {
-          statusElement.style.display = 'none';
-        }, 5000);
-      }
+    // Event Listeners
+    function setupEventListeners() {
+      // Auth form submission
+      document.getElementById("authForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const firstName = document.getElementById("firstName").value;
+        const lastName = document.getElementById("lastName").value;
+        const authBtn = document.getElementById("authBtn");
+        
+        let isValid = true;
+        
+        // Validation
+        if (!validateEmail(email)) {
+          showError('email', 'Please enter a valid email');
+          isValid = false;
+        } else {
+          hideError('email');
+        }
+
+        if (password.length < 6) {
+          showError('password', 'Password must be at least 6 characters');
+          isValid = false;
+        } else {
+          hideError('password');
+        }
+
+        if (!isLoginMode) {
+          if (!firstName.trim()) {
+            showError('firstName', 'First name is required');
+            isValid = false;
+          } else {
+            hideError('firstName');
+          }
+
+          if (!lastName.trim()) {
+            showError('lastName', 'Last name is required');
+            isValid = false;
+          } else {
+            hideError('lastName');
+          }
+        }
+
+        if (!isValid) return;
+
+        authBtn.classList.add("loading");
+        authBtn.textContent = isLoginMode ? "Signing in..." : "Registering...";
+        
+        await handleEmailPasswordAuth(email, password, firstName, lastName);
+        
+        authBtn.classList.remove("loading");
+        authBtn.textContent = isLoginMode ? "Sign In" : "Register";
+      });
+
+      // Toggle between login and register
+      document.getElementById("toggleAuth").addEventListener("click", (e) => {
+        e.preventDefault();
+        toggleAuthMode();
+      });
+
+      // Social login buttons
+      document.getElementById("googleBtn").addEventListener("click", () => handleSocialAuth('google'));
+      document.getElementById("microsoftBtn").addEventListener("click", () => handleSocialAuth('microsoft'));
+      document.getElementById("githubBtn").addEventListener("click", () => handleSocialAuth('github'));
+      document.getElementById("facebookBtn").addEventListener("click", () => handleSocialAuth('facebook'));
+
+      // Profile and logout buttons
+      document.getElementById("profileBtn").addEventListener("click", showUserProfile);
+      document.getElementById("logoutBtn").addEventListener("click", logout);
+
+      // Real-time validation
+      document.getElementById('email').addEventListener('blur', function() {
+        if (this.value && !validateEmail(this.value)) {
+          showError('email', 'Please enter a valid email');
+        } else {
+          hideError('email');
+        }
+      });
+
+      document.getElementById('password').addEventListener('blur', function() {
+        if (this.value && this.value.length < 6) {
+          showError('password', 'Password must be at least 6 characters');
+        } else {
+          hideError('password');
+        }
+      });
     }
 
-    // Form validation functions
+    // Utility functions
     function validateEmail(email) {
       const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return re.test(email);
@@ -525,122 +1025,31 @@
       }
     }
 
-    // Event Listeners Setup
-    function setupEventListeners() {
-      // Email/Password Form Submission
-      document.getElementById("signInForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        debugLog("Email/password form submitted");
-        
-        const signInBtn = document.getElementById("signInBtn");
-        
-        signInBtn.classList.add("loading");
-        signInBtn.textContent = "Redirecting to login...";
-        
-        try {
-          if (!auth0Client) {
-            throw new Error('Auth0 client not initialized');
-          }
-          
-          debugLog("Redirecting to Universal Login for email/password authentication");
-          await auth0Client.loginWithRedirect({
-            authorizationParams: {
-              screen_hint: 'login'
-            }
-          });
-        } catch (err) {
-          debugLog(`❌ Email/password login error: ${err.message}`);
-          console.error(err);
-          showStatus("Login failed: " + err.message, 'error');
-        } finally {
-          signInBtn.classList.remove("loading");
-          signInBtn.textContent = "Sign In with Email";
-        }
-      });
-
-      // Google Login
-      document.getElementById("googleBtn").addEventListener("click", async () => {
-        debugLog("Google login button clicked");
-        const btn = document.getElementById("googleBtn");
-        btn.style.transform = 'scale(0.98)';
-        
-        setTimeout(async () => {
-          btn.style.transform = 'scale(1)';
-          try {
-            if (!auth0Client) {
-              throw new Error('Auth0 client not initialized');
-            }
-            debugLog("Initiating Google OAuth login");
-            await auth0Client.loginWithRedirect({
-              authorizationParams: {
-                connection: "google-oauth2"
-              }
-            });
-          } catch (error) {
-            debugLog(`❌ Google login error: ${error.message}`);
-            showStatus('Google sign-in failed: ' + error.message, 'error');
-          }
-        }, 150);
-      });
-
-      // Facebook Login
-      document.getElementById("facebookBtn").addEventListener("click", async () => {
-        debugLog("Facebook login button clicked");
-        const btn = document.getElementById("facebookBtn");
-        btn.style.transform = 'scale(0.98)';
-        
-        setTimeout(async () => {
-          btn.style.transform = 'scale(1)';
-          try {
-            if (!auth0Client) {
-              throw new Error('Auth0 client not initialized');
-            }
-            debugLog("Initiating Facebook OAuth login");
-            await auth0Client.loginWithRedirect({
-              authorizationParams: {
-                connection: "facebook"
-              }
-            });
-          } catch (error) {
-            debugLog(`❌ Facebook login error: ${error.message}`);
-            showStatus('Facebook sign-in failed: ' + error.message, 'error');
-          }
-        }, 150);
-      });
-
-      // Logout
-      document.getElementById("logoutBtn").addEventListener("click", async () => {
-        debugLog("Logout button clicked");
-        try {
-          if (!auth0Client) {
-            throw new Error('Auth0 client not initialized');
-          }
-          await auth0Client.logout({
-            logoutParams: {
-              returnTo: window.location.origin
-            }
-          });
-        } catch (error) {
-          debugLog(`❌ Logout error: ${error.message}`);
-          showStatus('Logout failed: ' + error.message, 'error');
-        }
-      });
+    function showStatus(message, type) {
+      const statusElement = document.getElementById('statusIndicator');
+      statusElement.textContent = message;
+      statusElement.className = `status-indicator ${type}`;
+      statusElement.style.display = 'block';
+      
+      if (type === 'success') {
+        setTimeout(() => {
+          statusElement.style.display = 'none';
+        }, 5000);
+      }
     }
 
-    // Initialize everything when DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-      debugLog("DOM loaded, starting initialization");
-      setupEventListeners();
-      initAuth0();
-    });
-
-    // Backup initialization
-    window.addEventListener('load', function() {
-      if (!auth0Client) {
-        debugLog("Window loaded, Auth0 not initialized, retrying...");
-        initAuth0();
+    function checkExistingAuth() {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        verifyTokenverifyToken(token);
       }
-    });
+    }
+
+    // Animation initialization
+    function initSignUpAnimations() {
+      const container = document.querySelector('.container');
+      container.style.animation = 'fadeInScale 0.6s ease-out';
+    }
   </script>
 </body>
 </html>
